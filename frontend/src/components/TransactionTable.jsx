@@ -80,7 +80,7 @@ const TransactionTable = () => {
               )}
               <button
                 type="submit"
-                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition duration-200"
+                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2  outline-none cursor-pointer transition duration-200"
               >
                 Search
               </button>
@@ -89,7 +89,7 @@ const TransactionTable = () => {
               <select
                 onChange={handleMonthChange}
                 value={month}
-                className="px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-1 focus:ring-purple-600 focus:border-transparent outline-none cursor-pointer hover:bg-gray-100 transition duration-200"
+                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2  outline-none cursor-pointer transition duration-200"
               >
                 {months.map((monthItem, index) => (
                   <option value={monthItem.value} key={index}>
