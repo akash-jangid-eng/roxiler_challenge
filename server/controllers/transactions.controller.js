@@ -3,36 +3,23 @@ import { Product } from "../models/product.model.js";
 export const getAllTransactions = async (req, res) => {
   try {
     const page = Math.max(parseInt(req.query.page) || 1, 1);
-    const search = req.query.keyword || "";
+    const search = (req.query.keyword || "").trim();
     const month = parseInt(req.query.month) || 0;
 
-    const filters = {
-      $and: [
-        month === 0
-          ? {}
-          : { $expr: { $eq: [{ $month: "$dateOfSale" }, month] } },
-        {
-          $or: [
-            {
-              $expr: {
-                $regexMatch: {
-                  input: { $toLower: "$title" },
-                  regex: search,
-                },
-              },
-            },
-            {
-              $expr: {
-                $regexMatch: {
-                  input: { $toLower: "$description" },
-                  regex: search,
-                },
-              },
-            },
-          ],
-        },
-      ],
-    };
+    let filters = {};
+
+    if (month !== 0) {
+      filters.$expr = { $eq: [{ $month: "$dateOfSale" }, month] };
+    }
+
+    if (search) {
+      const searchRegex = new RegExp(search, "i");
+      const searchFilter = {
+        $or: [{ title: searchRegex }, { description: searchRegex }],
+      };
+
+      filters = month !== 0 ? { $and: [filters, searchFilter] } : searchFilter;
+    }
 
     const transactions = await Product.find(filters)
       .sort({ id: 1 })

@@ -6,22 +6,24 @@ import { setTransactions, setLoading } from "../redux/transactionSlice";
 const useGetAllTransactions = () => {
   const dispatch = useDispatch();
   const { search, page, month } = useSelector((state) => state.transaction);
-  console.log("params value", { search, page, month });
 
   useEffect(() => {
     const fetchTransactions = async () => {
       dispatch(setLoading(true));
       try {
-        const response = await axios.get(
-          `http://localhost:8000/api/transaction/transactions?keyword=${search}&page=${page}&month=${month}`
-        );
+        const searchParam = encodeURIComponent(search.trim());
+        const url = `http://localhost:8000/api/transaction/transactions?keyword=${searchParam}&page=${page}&month=${month}`;
+
+        console.log("Fetching URL:", url);
+
+        const response = await axios.get(url);
 
         if (response.data.success) {
           dispatch(
             setTransactions({
               transactions: response.data.transactions,
               totalCount: response.data.totalCount,
-              page: page,
+              page: response.data.page,
             })
           );
         }
@@ -32,7 +34,11 @@ const useGetAllTransactions = () => {
       }
     };
 
-    fetchTransactions();
+    const timeoutId = setTimeout(() => {
+      fetchTransactions();
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
   }, [dispatch, search, page, month]);
 };
 

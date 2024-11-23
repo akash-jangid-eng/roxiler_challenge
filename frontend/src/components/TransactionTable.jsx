@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setSearch, setPage, setMonth } from "../redux/transactionSlice";
 import useGetAllTransactions from "../hooks/useGetAllTransactions";
@@ -20,22 +20,31 @@ const months = [
 ];
 
 const TransactionTable = () => {
-  useGetAllTransactions();
   const dispatch = useDispatch();
-  const { transactions, totalCount, page, loading, month } = useSelector(
-    (state) => state.transaction
-  );
+  const {
+    transactions,
+    totalCount,
+    page,
+    loading,
+    month,
+    search: searchTerm,
+  } = useSelector((state) => state.transaction);
   const [searchInput, setSearchInput] = useState("");
+  const fetchTransactions = useGetAllTransactions();
 
-  const handleSearch = () => {
-    dispatch(setSearch(searchInput.trim().toLowerCase()));
+  useEffect(() => {
+    setSearchInput(searchTerm || "");
+  }, [searchTerm]);
+
+  const handleSearch = (e) => {
+    e?.preventDefault();
+    dispatch(setSearch(searchInput.trim()));
   };
 
   const handleClearSearch = () => {
     setSearchInput("");
     dispatch(setSearch(""));
     dispatch(setMonth(0));
-    dispatch(setPage(1));
   };
 
   const handleMonthChange = (e) => {
@@ -46,13 +55,13 @@ const TransactionTable = () => {
 
   return (
     <div className="w-full mt-6 px-6 shadow-2xl">
-      <div className="bg-white rounded-lg shadow-lg ">
+      <div className="bg-white rounded-lg shadow-lg">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-2xl mb-4 font-bold text-gray-800">
             Transactions
           </h2>
           <div className="flex justify-between items-center">
-            <div className="w-2/3">
+            <form onSubmit={handleSearch} className="w-2/3 relative">
               <input
                 type="text"
                 value={searchInput}
@@ -62,20 +71,20 @@ const TransactionTable = () => {
               />
               {searchInput && (
                 <button
+                  type="button"
                   onClick={handleClearSearch}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-600"
+                  className="absolute right-[35%] top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-600"
                 >
                   <span className="text-xl">&times;</span>
                 </button>
               )}
-
               <button
-                onClick={handleSearch}
+                type="submit"
                 className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition duration-200"
               >
                 Search
               </button>
-            </div>
+            </form>
             <div className="flex flex-wrap gap-4">
               <select
                 onChange={handleMonthChange}
